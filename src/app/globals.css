@@ -1,0 +1,88 @@
+:root {
+  --font-geist-sans: "Geist Sans", sans-serif;
+  --font-geist-mono: "Geist Mono", monospace;
+  --color-primary: #4a90e2;
+  --color-secondary: #333333;
+  --color-background: #f8f9fa;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-geist-sans);
+  background-color: var(--color-background);
+  color: var(--color-secondary);
+}
+
+.landing-page .hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: var(--color-primary);
+  color: white;
+  text-align: center;
+  padding: 2rem;
+}
+
+.landing-page .hero h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.landing-page .hero p {
+  font-size: 1.2rem;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.landing-page .hero .cta-button {
+  background-color: white;
+  color: var(--color-primary);
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.landing-page .hero .cta-button:hover {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.landing-page .features {
+  padding: 4rem 2rem;
+  background-color: white;
+  text-align: center;
+}
+
+.landing-page .features h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.landing-page .features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.landing-page .feature-item {
+  padding: 2rem;
+  border: 1px solid var(--color-primary);
+  border-radius: 0.5rem;
+  background-color: var(--color-background);
+}
+
+.landing-page .feature-item h3 {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.landing-page .feature-item p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
