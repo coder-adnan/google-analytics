@@ -10,7 +10,7 @@ export default function Home() {
             Monitor your web traffic effectively with integrated Google
             Analytics.
           </p>
-          <Link href="/api/auth">
+          <Link href="/dashboard">
             <button className="cta-button">Get Started</button>
           </Link>
         </div>

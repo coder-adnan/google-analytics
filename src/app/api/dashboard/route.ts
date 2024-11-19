@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { google, analyticsdata_v1beta } from "googleapis";
+
 const SCOPES = ["https://www.googleapis.com/auth/analytics.readonly"];
 
 const getAuthClient = async (): Promise<analyticsdata_v1beta.Analyticsdata> => {
@@ -30,17 +31,46 @@ export async function GET() {
             endDate: "today",
           },
         ],
-        metrics: [
+        dimensions: [
           {
-            name: "sessions",
+            name: "date", // Dimension for date
           },
           {
-            name: "screenPageViews",
+            name: "country", // Dimension for country
+          },
+        ],
+        metrics: [
+          {
+            name: "sessions", // Metric for sessions
+          },
+          {
+            name: "screenPageViews", // Metric for screen views
+          },
+          {
+            name: "totalUsers", // Metric for total users
+          },
+          {
+            name: "newUsers", // Metric for new users
+          },
+          {
+            name: "averageSessionDuration", // Metric for average session duration
+          },
+          {
+            name: "bounceRate", // Metric for bounce rate
+          },
+        ],
+        orderBys: [
+          {
+            dimension: {
+              orderType: "NUMERIC",
+              dimensionName: "date", // Sorting by date
+            },
           },
         ],
       },
     });
 
+    // Return the response data
     return NextResponse.json(response.data);
   } catch (error) {
     console.error("Error fetching analytics data:", error);
