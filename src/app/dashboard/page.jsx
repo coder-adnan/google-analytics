@@ -1,13 +1,16 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Line } from "react-chartjs-2";
+import { Line, Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   LineElement,
+  BarElement,
   PointElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
@@ -17,7 +20,9 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   LineElement,
+  BarElement,
   PointElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend
@@ -25,7 +30,6 @@ ChartJS.register(
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchAnalyticsData = async () => {
@@ -33,123 +37,141 @@ const Dashboard = () => {
         const response = await axios.get("/api/dashboard");
         setData(response.data);
         console.log("API Response:", response.data);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Failed to load analytics data.");
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
     };
 
     fetchAnalyticsData();
   }, []);
 
-  if (error) {
-    return <div>{error}</div>;
-  }
-
   if (!data) {
     return <div>Loading...</div>;
   }
 
-  // Helper functions for parsing data
-  const getMetricValue = (row, index) =>
-    parseFloat(row?.metricValues?.[index]?.value || 0);
-
-  const getDimensionValue = (row, index) =>
-    row?.dimensionValues?.[index]?.value || "Unknown";
-
-  // Chart Data for Sessions and Page Views
-  const chartData1 = {
-    labels: data.rows.map((row) => getDimensionValue(row, 0)), // Dates
-    datasets: [
-      {
-        label: "Sessions",
-        data: data.rows.map((row) => getMetricValue(row, 0)),
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 2,
-        fill: false,
-        tension: 0.4,
-      },
-      {
-        label: "Screen Page Views",
-        data: data.rows.map((row) => getMetricValue(row, 1)),
-        backgroundColor: "rgba(153, 102, 255, 0.2)",
-        borderColor: "rgba(153, 102, 255, 1)",
-        borderWidth: 2,
-        fill: false,
-        tension: 0.4,
-      },
-    ],
+  const getMetricValue = (row, index) => {
+    return parseFloat(row?.metricValues?.[index]?.value || 0);
   };
 
-  // Chart Data for Bounce Rate
-  const chartData2 = {
-    labels: data.rows.map((row) => getDimensionValue(row, 1)), // Countries
-    datasets: [
-      {
-        label: "Bounce Rate",
-        data: data.rows.map((row) => getMetricValue(row, 5)), // Bounce Rate
-        backgroundColor: "rgba(255, 99, 132, 0.2)",
-        borderColor: "rgba(255, 99, 132, 1)",
-        borderWidth: 2,
-        fill: false,
-        tension: 0.4,
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "top",
-        labels: {
-          font: { size: 14 },
-        },
-      },
-      title: {
-        display: true,
-        text: "Google Analytics Dashboard",
-        font: { size: 18 },
-      },
+  const metrics = [
+    {
+      name: "Sessions",
+      index: 0,
+      color: "rgba(75, 192, 192, 1)",
+      type: "line",
     },
-    scales: {
-      x: {
-        grid: { display: false },
-        title: {
-          display: true,
-          text: "Metrics",
-          font: { size: 14 },
-        },
-      },
-      y: {
-        grid: { color: "rgba(200, 200, 200, 0.2)" },
-        title: {
-          display: true,
-          text: "Values",
-          font: { size: 14 },
-        },
-      },
+    {
+      name: "Screen Page Views",
+      index: 1,
+      color: "rgba(153, 102, 255, 1)",
+      type: "bar",
     },
-  };
+    {
+      name: "Users",
+      index: 2,
+      color: "rgba(255, 159, 64, 1)",
+      type: "doughnut",
+    },
+    {
+      name: "New Users",
+      index: 3,
+      color: "rgba(54, 162, 235, 1)",
+      type: "line",
+    },
+    {
+      name: "Avg. Engagement Time",
+      index: 4,
+      color: "rgba(255, 206, 86, 1)",
+      type: "bar",
+    },
+    {
+      name: "Bounce Rate",
+      index: 5,
+      color: "rgba(153, 102, 255, 1)",
+      type: "doughnut",
+    },
+  ];
+
+  const renderCharts = () =>
+    metrics.map((metric) => {
+      const labels =
+        data?.rows?.map((row) => row?.dimensionValues?.[0]?.value) || []; // Dates from data
+      const values =
+        data?.rows?.map((row) => getMetricValue(row, metric.index)) || [];
+
+      const chartData = {
+        labels,
+        datasets: [
+          {
+            label: metric.name,
+            data: values,
+            backgroundColor:
+              metric.type === "doughnut"
+                ? [
+                    "rgba(255, 99, 132, 0.6)",
+                    "rgba(54, 162, 235, 0.6)",
+                    "rgba(75, 192, 192, 0.6)",
+                  ]
+                : `${metric.color}20`, // Semi-transparent background for other charts
+            borderColor: metric.color,
+            borderWidth: 2,
+            fill: metric.type === "line",
+            tension: metric.type === "line" ? 0.4 : 0,
+          },
+        ],
+      };
+
+      const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: metric.type !== "line" },
+          title: {
+            display: true,
+            text: metric.name,
+            font: { size: 16 },
+          },
+        },
+        scales: metric.type !== "doughnut" && {
+          x: {
+            grid: { display: false },
+            title: { display: true, text: "Date", font: { size: 14 } },
+          },
+          y: {
+            grid: { color: "rgba(200, 200, 200, 0.2)" },
+            title: { display: true, text: "Value", font: { size: 14 } },
+          },
+        },
+      };
+
+      return (
+        <div key={metric.name} style={{ flex: "1 1 45%", margin: "10px" }}>
+          <div style={{ height: "300px" }}>
+            {metric.type === "line" && (
+              <Line data={chartData} options={options} />
+            )}
+            {metric.type === "bar" && (
+              <Bar data={chartData} options={options} />
+            )}
+            {metric.type === "doughnut" && (
+              <Doughnut data={chartData} options={options} />
+            )}
+          </div>
+        </div>
+      );
+    });
 
   return (
     <div>
-      <h1>Admin Dashboard</h1>
+      <h1 style={{ textAlign: "center" }}>Admin Dashboard</h1>
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
-          height: "500px",
+          flexWrap: "wrap",
+          justifyContent: "space-around",
         }}
       >
-        <div style={{ width: "48%" }}>
-          <Line data={chartData1} options={options} />
-        </div>
-        <div style={{ width: "48%" }}>
-          <Line data={chartData2} options={options} />
-        </div>
+        {renderCharts()}
       </div>
     </div>
   );

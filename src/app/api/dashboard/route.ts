@@ -23,7 +23,7 @@ export async function GET() {
   try {
     const analytics = await getAuthClient();
     const response = await analytics.properties.runReport({
-      property: "properties/467395843", // Replace with your actual Property ID
+      property: "properties/467395843",
       requestBody: {
         dateRanges: [
           {
