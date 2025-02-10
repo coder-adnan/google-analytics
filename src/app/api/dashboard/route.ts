@@ -16,7 +16,7 @@ interface AnalyticsResponse {
 }
 
 
-export async function GET(request: Request): Promise<Response> {
+export async function GET(): Promise<Response> {
   try {
     // Validate GA4_PROPERTY_ID
     const propertyId = process.env.GA4_PROPERTY_ID;
@@ -82,12 +82,12 @@ export async function GET(request: Request): Promise<Response> {
 
     // Return the data as JSON
     return NextResponse.json(data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching analytics data:", error);
     return NextResponse.json(
       {
         error: "Error fetching data from Google Analytics.",
-        details: error.message || "Internal Server Error",
+        details: error instanceof Error ? error.message : "Internal Server Error",
       },
       { status: 500 }
     );
