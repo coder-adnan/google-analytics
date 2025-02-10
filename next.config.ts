@@ -1,10 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  env: {
-    NEXT_PUBLIC_ENV: process.env.NEXT_PUBLIC_ENV || 'development'
-  },
-  // Enable environment-specific settings
+
   serverRuntimeConfig: {
     // Will only be available on the server side
     mySecret: process.env.MY_SECRET,
@@ -13,6 +10,17 @@ const nextConfig: NextConfig = {
     // Will be available on both server and client
     staticFolder: '/static',
   },
+  git: {
+    "deploymentEnables": {
+      "main": true,
+      "master": true,
+      "feature/*": true,
+    }
+  },
+  "buildCommand": "sh vercel.sh",
+  "env": {
+    "NEXT_PUBLIC_ENV": "$NEXT_PUBLIC_ENV"
+  }
 };
 
 export default nextConfig;
