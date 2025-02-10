@@ -2,15 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Line, Bar, Doughnut } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   LineElement,
-  BarElement,
   PointElement,
-  ArcElement,
   Title,
   Tooltip,
   Legend,
@@ -20,9 +18,7 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   LineElement,
-  BarElement,
   PointElement,
-  ArcElement,
   Title,
   Tooltip,
   Legend
@@ -49,129 +45,55 @@ const Dashboard = () => {
     return <div>Loading...</div>;
   }
 
-  const getMetricValue = (row, index) => {
-    return parseFloat(row?.metricValues?.[index]?.value || 0);
+  const labels =
+    data?.rows?.map((row) => row?.dimensionValues?.[0]?.value) || [];
+  const values =
+    data?.rows?.map((row) => parseFloat(row?.metricValues?.[0]?.value || 0)) ||
+    [];
+
+  const chartData = {
+    labels,
+    datasets: [
+      {
+        label: "Visitors",
+        data: values,
+        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+      },
+    ],
   };
 
-  const metrics = [
-    {
-      name: "Sessions",
-      index: 0,
-      color: "rgba(75, 192, 192, 1)",
-      type: "line",
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      title: {
+        display: true,
+        text: "Visitors",
+        font: { size: 16 },
+      },
     },
-    {
-      name: "Screen Page Views",
-      index: 1,
-      color: "rgba(153, 102, 255, 1)",
-      type: "bar",
+    scales: {
+      x: {
+        grid: { display: false },
+        title: { display: true, text: "Date", font: { size: 14 } },
+      },
+      y: {
+        grid: { color: "rgba(200, 200, 200, 0.2)" },
+        title: { display: true, text: "Value", font: { size: 14 } },
+      },
     },
-    {
-      name: "Users",
-      index: 2,
-      color: "rgba(255, 159, 64, 1)",
-      type: "doughnut",
-    },
-    {
-      name: "New Users",
-      index: 3,
-      color: "rgba(54, 162, 235, 1)",
-      type: "line",
-    },
-    {
-      name: "Avg. Engagement Time",
-      index: 4,
-      color: "rgba(255, 206, 86, 1)",
-      type: "bar",
-    },
-    {
-      name: "Bounce Rate",
-      index: 5,
-      color: "rgba(153, 102, 255, 1)",
-      type: "doughnut",
-    },
-  ];
-
-  const renderCharts = () =>
-    metrics.map((metric) => {
-      const labels =
-        data?.rows?.map((row) => row?.dimensionValues?.[0]?.value) || []; // Dates from data
-      const values =
-        data?.rows?.map((row) => getMetricValue(row, metric.index)) || [];
-
-      const chartData = {
-        labels,
-        datasets: [
-          {
-            label: metric.name,
-            data: values,
-            backgroundColor:
-              metric.type === "doughnut"
-                ? [
-                    "rgba(255, 99, 132, 0.6)",
-                    "rgba(54, 162, 235, 0.6)",
-                    "rgba(75, 192, 192, 0.6)",
-                  ]
-                : `${metric.color}20`, // Semi-transparent background for other charts
-            borderColor: metric.color,
-            borderWidth: 2,
-            fill: metric.type === "line",
-            tension: metric.type === "line" ? 0.4 : 0,
-          },
-        ],
-      };
-
-      const options = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: metric.type !== "line" },
-          title: {
-            display: true,
-            text: metric.name,
-            font: { size: 16 },
-          },
-        },
-        scales: metric.type !== "doughnut" && {
-          x: {
-            grid: { display: false },
-            title: { display: true, text: "Date", font: { size: 14 } },
-          },
-          y: {
-            grid: { color: "rgba(200, 200, 200, 0.2)" },
-            title: { display: true, text: "Value", font: { size: 14 } },
-          },
-        },
-      };
-
-      return (
-        <div key={metric.name} style={{ flex: "1 1 45%", margin: "10px" }}>
-          <div style={{ height: "300px" }}>
-            {metric.type === "line" && (
-              <Line data={chartData} options={options} />
-            )}
-            {metric.type === "bar" && (
-              <Bar data={chartData} options={options} />
-            )}
-            {metric.type === "doughnut" && (
-              <Doughnut data={chartData} options={options} />
-            )}
-          </div>
-        </div>
-      );
-    });
+  };
 
   return (
     <div>
       <h1 style={{ textAlign: "center" }}>Admin Dashboard</h1>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "space-around",
-        }}
-      >
-        {renderCharts()}
+      <div style={{ height: "300px", width: "100%" }}>
+        <Line data={chartData} options={options} />
       </div>
     </div>
   );
