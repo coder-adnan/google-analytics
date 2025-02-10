@@ -1,0 +1,6 @@
+{
+  "buildCommand": "sh vercel.sh",
+  "env": {
+    "NEXT_PUBLIC_ENV": "$NEXT_PUBLIC_ENV"
+  }
+} 
